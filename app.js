@@ -4,6 +4,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
+
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 const { DB_HOST, PORT = 4500 } = process.env;
@@ -43,6 +44,7 @@ mongoose
   )
   .catch((error) => {
     console.log(error.message);
+    console.log("DB don't connect");
     process.exit(1);
   });
 
