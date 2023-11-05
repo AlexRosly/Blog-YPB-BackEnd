@@ -2,64 +2,71 @@
     "openapi": "3.0.1",
     "info": {
       "version": "1.0.1",
-      "title": "swagger-money",
+      "title": "Blog-YourPriceBookig",
       "description": "Showing swagger-ui-express",
-      "licence": { "name": "GoIt", "URL": "GOIT.com" }
+      "licence": { "name": "Your Price Bookig", "URL": "GOIT.com" }
     },
     "consumes": ["application/json"],
     "produces": ["application/json"],
     "servers": [
-      { "url": "https://teamproj-money-tracker.herokuapp.com" },
-      { "url": "http://localhost:8787/api" }
+      { "url": "https://blog-yourpricebooking-backend.onrender.com" },
+      { "url": "http://localhost:4500"}
     ],
     "tags": [
-      { "name": "Auth", "description": "Authorization endpoints" },
-      { "name": "Users", "description": "Users endpoints" },
-      { "name": "Transactions", "description": "Transactions endpoints" }
+      { "name": "Post", "description": "Post endpoints" }
     ],
     "paths": {
-      "auth/signup": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "User registration",
-          "parameters": [],
-          "requestBody": {
-            "description": "Registration's object",
+      "post/getAllPosts?{page}&{limit}": {
+        "get": {
+          "tags": ["Post"],
+          "summary": "Get All Post",
+          "parameters": [{
+            "in": "path",
+            "name": "require page and limit",
+            "page":"1", 
+            "limit": "15",
             "required": "true",
+            "type": "string",
+            "description":"Must be specified",
+            "example": "page=1&limit=5"
+            }],
+          "requestBody": {
+            "description": "Get All Post",
             "content": {
               "applcation/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegistrationRequest"
+                  "$ref": "#/components/schemas/GetAllPostRequest"
                 }
               }
             }
           },
           "responses": {
-            "201": {
+            "200": {
               "description": "Successful operation",
               "content": {
                 "applcation/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/RegistrationResponse"
+                    "$ref": "#/components/schemas/GetAllPostResponse"
                   }
                 }
               }
             },
-            "409": {
-              "description": "Provided email already in base",
+            "404": {
+              "description": "posts don't found in DB",
               "content": {}
-            },
-            "400": { "description": "Bad request", "conten": {} }
+            }
           }
         }
       },
-      "auth/signin": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "User authorization",
-          "parameters": [],
+      "post/getPostByArticleUrl": {
+        "get": {
+          "tags": ["Post"],
+          "summary": "Get post by article url",
+          "parameters": [
+                {"articleUrl":"string"}
+            ],
           "requestBody": {
-            "description": "Authorization's object",
+            "description": "Get post by article url",
             "required": "true",
             "content": {
               "applcation/json": {
@@ -80,257 +87,94 @@
                 }
               }
             },
-            "401": {
-              "description": "Unauthorized",
-              "content": {}
-            },
-            "400": { "description": "Bad request", "conten": {} }
-          }
-        }
-      },
-      "auth/logout": {
-        "get": {
-          "tags": ["Auth"],
-          "summary": "User logout",
-          "parameters": [],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "204": {
-              "description": "Successful operation",
-              "content": {}
-            },
-            "401": {
-              "description": "Unauthorized",
-              "content": {}
-            },
-            "400": { "description": "Bad request", "conten": {} }
-          }
-        }
-      },
-      "users/current": {
-        "get": {
-          "tags": ["Users"],
-          "summary": "User information",
-          "parameters": [],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": { "$ref": "#/components/schemas/CurrentUserResponse" }
-                }
-              }
-            },
-            "400": { "description": "Bad request", "conten": {} }
-          }
-        }
-      },
-      "users/currentbalance": {
-        "get": {
-          "tags": ["Users"],
-          "summary": "User information",
-          "parameters": [],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/CurrentUserBalanceResponse"
-                  }
-                }
-              }
-            },
-            "400": { "description": "Bad request", "conten": {} }
-          }
-        }
-      },
-      "users/balance": {
-        "patch": {
-          "tags": ["Users"],
-          "summary": "Update user's balance",
-          "parameters": [],
-          "security": [{ "Bearer": [] }],
-          "requestBody": {
-            "description": "Balance object",
-            "required": "true",
-            "content": {
-              "applcation/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateCurrentUserBalanceRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/UpdateCurrentUserBalanceResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Not found",
+            "409": {
+              "description": "posts with url don't found in DB",
               "content": {}
             }
           }
         }
       },
-      "transactions/": {
+      "post/addPost": {
         "post": {
-          "tags": ["Transactions"],
-          "summary": "Adding transaction",
+          "tags": ["Post"],
+          "summary": "Add new post",
           "parameters": [],
-          "security": [{ "Bearer": [] }],
-          "requestBody": {
-            "description": "Transaction's object",
-            "required": "true",
-            "content": {
-              "applcation/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddigTransactionRequest"
-                }
-              }
-            }
-          },
           "responses": {
             "201": {
               "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/AddigTransactionResponse"
-                  }
-                }
-              }
+              "content": {}
             },
-            "400": { "description": "Bad request", "conten": {} }
-          }
-        }
-      },
-      "transactions/:transactionId": {
-        "delete": {
-          "tags": ["Transactions"],
-          "summary": "Deleting transaction",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "transactionId",
-              "required": "true",
-              "type": "string",
-              "description": "Id of transaction to delete"
-            }
-          ],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "202": {
-              "description": "Successful operation",
-              "content": {
-                "message": {
-                  "schema": {
-                    "$ref": "#/components/schemas/DeletingTransactionResponse"
-                  }
-                }
-              }
-            },
-            "404": { "description": "Not found", "conten": {} }
-          }
-        }
-      },
-      "transactions/getByMonth": {
-        "get": {
-          "tags": ["Transactions"],
-          "summary": "Geting transactions by month and year",
-          "parameters": [
-            {
-              "in": "quey",
-              "name": "month",
-              "required": "true",
-              "type": "string",
-              "description": "Month for sort"
-            },
-            {
-              "in": "quey",
-              "name": "year",
-              "required": "true",
-              "type": "string",
-              "description": "Year for sort"
-            }
-          ],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "202": {
-              "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": { "$ref": "#/components/schemas/GetByMonthResponse" }
-                }
-              }
-            },
-            "404": { "description": "Not found", "conten": {} }
-          }
-        }
-      },
-      "transactions//getType/:type": {
-        "get": {
-          "tags": ["Transactions"],
-          "summary": "Geting transactions by type",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "type",
-              "required": "true",
-              "type": "string",
-              "description": "type for sort"
-            }
-          ],
-          "security": [{ "Bearer": [] }],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "applcation/json": {
-                  "schema": { "$ref": "#/components/schemas/GetByTypeResponse" }
-                }
-              }
-            },
-            "404": { "description": "Not found", "conten": {} }
+            "404": {
+              "description": "post don't created",
+              "content": {}
+            },            
+            "405": {
+                "description": " http method not allowed",
+                "content": {}
+              },
+  
+            "409": { "description": "article with url are exist in DB", "conten": {} }
           }
         }
       }
     },
     "components": {
       "schemas": {
-        "RegistrationRequest": {
+        "GetAllPostResponse": {
           "type": "object",
-          "required": ["email", "password"],
+          "required":[
+            "title","author", "imageUrl","description","articleUrl","markup"
+          ],
           "properties": {
-            "email": {
+            "id":{
+                "type": "string", 
+                "description": "post id", 
+                "example": "654408d3290c3695d2496b4a"},
+            "title": {
               "type": "string",
-              "description": "User's email",
-              "format": "email"
+              "description": "post title",
+              "example": "YourPriceBooking"
             },
-            "password": {
+            "author": {
               "type": "string",
-              "description": "User's password",
-              "example": "123456"
+              "description": "post author",
+              "example": "Slawa"
+            },
+            "imageUrl":{
+                "type": "array",
+                "description": "post images",
+                "example": ["https://mongoosejs.com/docs/schematypes.html#dates",
+                "https://mongoosejs.com/docs/schematypes.html#dates",
+                "https://mongoosejs.com/docs/schematypes.html#dates"]
+            },
+            "description":{
+                "type": "string",
+                "description": "post description",
+                "example": "Two very common methods of fortune telling are reading coffee grounds or tea leaves."
+            },
+            "articleUrl":{
+                "type": "string",
+                "description": "article Url",
+                "example": "https://mongoosejs.com/docs/schematypes.html#dates."
             }
-          }
+        }
         },
-        "RegistrationResponse": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string",
-              "description": "User's email",
-              "format": "email"
-            }
+        "GetAllPostRequest": {
+          "type": "string",
+            "parameters": {
+                "in":"path",
+                "schema":{            
+                    "page": {
+                    "type":"integer",
+                    "description": "pages number",
+                    "example": "1"
+                  },
+                  "limit": {
+                    "type":"integer",
+                      "description": "limit post on page",
+                      "example": "5"
+                  }
+      }
           }
         },
         "AuthorizationRequest": {

@@ -1,5 +1,5 @@
 const express = require("express");
-const { blogs: ctrl } = require("../controllers");
+const { post: ctrl } = require("../controllers");
 const { ctrlWrapper, validation, upload } = require("../middelwares");
 const router = express.Router();
 
