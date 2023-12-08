@@ -7,7 +7,7 @@ dotenv.config();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
-const { DB_HOST, PORT = 4500 } = process.env;
+const { DB_HOST, APP_PORT = 4500 } = process.env;
 
 const postRouter = require("./routes/post");
 
@@ -36,9 +36,9 @@ mongoose.set("strictQuery", false);
 mongoose
   .connect(DB_HOST)
   .then(() =>
-    app.listen(PORT, () => {
+    app.listen(APP_PORT, () => {
       console.log(
-        `server is running in port ${PORT} and Database connection successful`
+        `server is running in port ${APP_PORT} and Database connection successful`
       );
     })
   )
@@ -47,7 +47,3 @@ mongoose
     console.log("DB don't connect");
     process.exit(1);
   });
-
-// app.listen(PORT, () => {
-//   console.log(`server is running in port ${PORT}`);
-// });
