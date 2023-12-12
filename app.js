@@ -5,9 +5,15 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Connection URL
+// const url = 'mongodb://localhost:27017';
+// const client = new MongoClient(url);
+// Database Name
+// const dbName = "Blog-YourPriceBooking";
+
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
-const { DB_HOST, APP_PORT = 4500 } = process.env;
+const { DB_HOST, NEW_DB, APP_PORT = 4500 } = process.env;
 
 const postRouter = require("./routes/post");
 
@@ -34,7 +40,7 @@ app.use((err, req, res, next) => {
 mongoose.set("strictQuery", false);
 
 mongoose
-  .connect(DB_HOST)
+  .connect(NEW_DB)
   .then(() =>
     app.listen(APP_PORT, () => {
       console.log(
