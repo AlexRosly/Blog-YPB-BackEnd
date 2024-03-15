@@ -13,7 +13,7 @@ dotenv.config();
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
-const { DB_HOST, NEW_DB, APP_PORT = 4500 } = process.env;
+const { DB_HOST, DB_SERVER, APP_PORT = 4500 } = process.env;
 
 const postRouter = require("./routes/post");
 
@@ -40,7 +40,8 @@ app.use((err, req, res, next) => {
 mongoose.set("strictQuery", false);
 
 mongoose
-  .connect(NEW_DB)
+  .connect(DB_HOST)
+  // .connect(DB_SERVER)
   .then(() =>
     app.listen(APP_PORT, () => {
       console.log(
