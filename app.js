@@ -21,7 +21,12 @@ const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://admin2-alpha.vercel.app", "http://localhost:3000/"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/blog/api/post", postRouter);
