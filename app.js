@@ -23,7 +23,7 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 app.use(logger(formatsLogger));
 app.use(
   cors({
-    origin: ["https://admin2-alpha.vercel.app", "http://localhost:3000/"],
+    origin: ["https://admin2-alpha.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );
