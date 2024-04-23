@@ -5,9 +5,17 @@ const getAllPosts = async (req, res) => {
   const skip = (page - 1) * limit;
   const result = await Post.find(
     {},
-    { title: 1, author: 1, imageUrl: 1, description: 1, articleUrl: 1 },
+    {
+      title: 1,
+      author: 1,
+      imageUrl: 1,
+      description: 1,
+      markup: 1,
+      articleUrl: 1,
+      publicationDate: 1,
+    },
     { skip, limit: Number(limit) }
-  );
+  ).sort({ createdAt: -1 });
 
   if (!result) {
     return res

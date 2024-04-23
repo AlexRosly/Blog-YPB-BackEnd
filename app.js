@@ -10,6 +10,7 @@ dotenv.config();
 // const client = new MongoClient(url);
 // Database Name
 // const dbName = "Blog-YourPriceBooking";
+// DB_SERVER = mongodb://127.0.0.1:27017/Blog-YourPriceBooking
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
@@ -23,7 +24,11 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 app.use(logger(formatsLogger));
 app.use(
   cors({
-    origin: ["https://admin2-alpha.vercel.app", "http://localhost:3000"],
+    origin: [
+      "https://admin2-alpha.vercel.app",
+      "http://localhost:3000",
+      "https://www.thewandered.com",
+    ],
     credentials: true,
   })
 );

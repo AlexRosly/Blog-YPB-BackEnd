@@ -2,9 +2,26 @@ const { Post } = require("../../models");
 const cloudinary = require("../../utils/cloudinary");
 const path = require("path");
 const fs = require("fs").promises;
+const cyrillicToTranslit = require("cyrillic-to-translit-js");
+const langdetect = require("langdetect");
 
 const addPost = async (req, res) => {
-  const { articleUrl } = req.body;
+  const { title, author, description, markup, titleForLink } = req.body;
+
+  const domain = "https://www.thewandered.com/";
+
+  const language = langdetect.detectOne(`${titleForLink}`);
+
+  let verifyTitle;
+  if (titleForLink) {
+    verifyTitle = titleForLink.replace(/[.,:'"?!\-]/g, "");
+  }
+
+  const translit = cyrillicToTranslit({ preset: language })
+    .transform(verifyTitle, "-")
+    .toLowerCase();
+  const articleUrl = `${domain}${translit}`;
+
   const findPost = await Post.find({ articleUrl });
 
   if (findPost.length > 0) {
@@ -31,13 +48,17 @@ const addPost = async (req, res) => {
 
       const publicationDate = new Date();
       const changeDate = new Date();
-
       const result = await Post.create({
-        ...req.body,
+        title,
+        author,
+        description,
         publicationDate,
+        markup,
         changeDate,
         imageUrl: urls,
+        articleUrl,
       });
+
       if (!result) {
         return res
           .status(404)
@@ -56,7 +77,7 @@ const addPost = async (req, res) => {
         })
         .end();
     } else {
-      res
+      return res
         .status(405)
         .json({
           err: `${req.method} method not allowed`,
@@ -64,7 +85,6 @@ const addPost = async (req, res) => {
         .end();
     }
   } catch (error) {
-    console.log({ error });
     return res
       .status(404)
       .json({
@@ -73,8 +93,6 @@ const addPost = async (req, res) => {
       })
       .end();
   }
-
-  // console.log({ result });
 
   res.end();
 };
