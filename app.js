@@ -17,6 +17,7 @@ const swaggerDocument = require("./swagger.json");
 const { DB_HOST, DB_SERVER, APP_PORT = 4500 } = process.env;
 
 const postRouter = require("./routes/post");
+const authorRouter = require("./routes/author");
 
 const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
@@ -35,6 +36,7 @@ app.use(
 app.use(express.json());
 
 app.use("/blog/api/post", postRouter);
+app.use("/blog/api/author", authorRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -51,7 +53,7 @@ mongoose.set("strictQuery", false);
 
 mongoose
   .connect(DB_HOST)
-  // .connect(DB_SERVER)
+  //.connect(DB_SERVER)
   .then(() =>
     app.listen(APP_PORT, () => {
       console.log(

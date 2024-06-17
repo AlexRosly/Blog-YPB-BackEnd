@@ -1,21 +1,41 @@
 const { Post } = require("../../models");
 
 const getAllPosts = async (req, res) => {
-  const { limit = 3, page = 1 } = req.query;
-  const skip = (page - 1) * limit;
-  const result = await Post.find(
-    {},
-    {
-      title: 1,
-      author: 1,
-      imageUrl: 1,
-      description: 1,
-      markup: 1,
-      articleUrl: 1,
-      publicationDate: 1,
-    },
-    { skip, limit: Number(limit) }
-  ).sort({ createdAt: -1 });
+  const { limit, page = 1 } = req.query;
+
+  let result;
+
+  if (!limit) {
+    result = await Post.find(
+      {},
+      {
+        title: 1,
+        author: 1,
+        imageUrl: 1,
+        heading: 1,
+        description: 1,
+        markup: 1,
+        articleUrl: 1,
+        publicationDate: 1,
+      }
+    );
+  } else {
+    const skip = (page - 1) * limit;
+    result = await Post.find(
+      {},
+      {
+        title: 1,
+        author: 1,
+        imageUrl: 1,
+        heading: 1,
+        description: 1,
+        markup: 1,
+        articleUrl: 1,
+        publicationDate: 1,
+      },
+      { skip, limit: Number(limit) }
+    ).sort({ createdAt: -1 });
+  }
 
   if (!result) {
     return res

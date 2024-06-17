@@ -6,15 +6,14 @@ const cyrillicToTranslit = require("cyrillic-to-translit-js");
 const langdetect = require("langdetect");
 
 const addPost = async (req, res) => {
-  const { title, author, description, markup, titleForLink } = req.body;
+  const { title, author, description, markup, heading } = req.body;
 
   const domain = "https://www.thewandered.com/";
-
-  const language = langdetect.detectOne(`${titleForLink}`);
+  const language = langdetect.detectOne(`${heading}`);
 
   let verifyTitle;
-  if (titleForLink) {
-    verifyTitle = titleForLink.replace(/[.,:'"?!\-]/g, "");
+  if (heading) {
+    verifyTitle = heading.replace(/[.,:'"?!\-]/g, "");
   }
 
   const translit = cyrillicToTranslit({ preset: language })
@@ -57,6 +56,7 @@ const addPost = async (req, res) => {
         changeDate,
         imageUrl: urls,
         articleUrl,
+        heading,
       });
 
       if (!result) {

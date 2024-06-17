@@ -8,6 +8,7 @@ const postSchema = Schema(
     author: {
       type: String,
     },
+    heading: { type: String },
     imageUrl: [{ type: String }],
     description: {
       type: String,
