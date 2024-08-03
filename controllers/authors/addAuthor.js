@@ -5,7 +5,7 @@ const fs = require("fs").promises;
 
 const addAuthor = async (req, res) => {
   //get params from req.body
-  const { description, name, skills, links } = req.body;
+  const { description, name, skills, links, email } = req.body;
   //get file
   const { path } = req.file;
 
@@ -20,6 +20,7 @@ const addAuthor = async (req, res) => {
       name,
       skills,
       links,
+      email,
     });
     //if authron doesn't created return reponse
     if (!result) {

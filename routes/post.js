@@ -1,6 +1,6 @@
 const express = require("express");
 const { post: ctrl } = require("../controllers");
-const { ctrlWrapper, validation, upload } = require("../middelwares");
+const { ctrlWrapper, upload } = require("../middelwares");
 const router = express.Router();
 
 //get all post
