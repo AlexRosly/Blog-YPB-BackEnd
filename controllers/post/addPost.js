@@ -6,7 +6,7 @@ const cyrillicToTranslit = require("cyrillic-to-translit-js");
 const langdetect = require("langdetect");
 
 const addPost = async (req, res) => {
-  const { title, author, description, markup, heading } = req.body;
+  const { title, author, description, markup, heading, country } = req.body;
 
   const domain = "https://www.thewandered.com/";
   const language = langdetect.detectOne(`${heading}`);
@@ -19,8 +19,7 @@ const addPost = async (req, res) => {
   const translit = cyrillicToTranslit({ preset: language })
     .transform(verifyTitle, "-")
     .toLowerCase();
-  const articleUrl = `${domain}${translit}`;
-
+  const articleUrl = `${domain}${country.toLowerCase()}/${translit}`;
   const findPost = await Post.find({ articleUrl });
 
   if (findPost.length > 0) {
@@ -57,6 +56,7 @@ const addPost = async (req, res) => {
         imageUrl: urls,
         articleUrl,
         heading,
+        country: country.toLowerCase(),
       });
 
       if (!result) {

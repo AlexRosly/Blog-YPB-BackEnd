@@ -25,6 +25,7 @@ const postSchema = Schema(
     markup: {
       type: String,
     },
+    country: { type: String },
   },
   { versionKey: false, timestamps: true }
 );
