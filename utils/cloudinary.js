@@ -6,27 +6,40 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-exports.uploads = (file, folder) => {
-  return new Promise((resolve) => {
-    cloudinary.uploader.upload(
-      file,
-      (result) => {
-        // resolve({
-        //   url: result.url,
-        //   id: result.public_id,
-        // }); use if need object [{id:id, url: "http"}]
-        resolve(result.url);
+exports.uploads = async (filePath, folder, context = {}) => {
+  try {
+    const result = await cloudinary.uploader.upload(
+      filePath,
+      {
+        folder,
+        use_filename: true,
+        unique_filename: false,
+        overwrite: true,
+        resource_type: "auto",
       },
       {
+        context, // 👈 тут Cloudinary сохраняет alt/caption/description
         resource_type: "auto",
         folder: folder,
       }
     );
-  });
+    return {
+      url: result.secure_url,
+      id: result.public_id,
+      context: result.context?.custom || {}, // возвращаем что Cloudinary сохранил
+    };
+  } catch (err) {
+    console.error("❌ Cloudinary upload error:", err);
+    return null; // чтобы Promise.all не падал
+  }
 };
 
-exports.remove = (id) => {
-  return new Promise((resolve) => {
-    cloudinary.uploader.destroy(id);
-  });
+exports.remove = async (id) => {
+  try {
+    const result = await cloudinary.uploader.destroy(id);
+    return result;
+  } catch (err) {
+    console.error("❌ Cloudinary delete error:", err);
+    return null;
+  }
 };

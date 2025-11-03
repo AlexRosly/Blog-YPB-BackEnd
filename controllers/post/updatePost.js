@@ -1,5 +1,4 @@
 const { Post } = require("../../models");
-// const { NotFound } = require("http-errors");
 
 const updatePost = async (req, res) => {
   const { id } = req.params;

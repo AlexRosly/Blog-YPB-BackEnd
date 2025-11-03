@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/AlexRosly/Blog-YPB-BackEnd#readme",
   "dependencies": {
+    "axios": "^1.12.2",
     "cloudinary": "^1.41.0",
     "cors": "2.8.5",
     "cross-env": "7.0.3",

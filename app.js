@@ -18,6 +18,7 @@ const { DB_HOST, DB_SERVER, APP_PORT = 4500 } = process.env;
 
 const postRouter = require("./routes/post");
 const authorRouter = require("./routes/author");
+const countryRouter = require("./routes/country");
 
 const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
@@ -37,6 +38,7 @@ app.use(express.json());
 
 app.use("/blog/api/post", postRouter);
 app.use("/blog/api/author", authorRouter);
+app.use("/blog/api/country", countryRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

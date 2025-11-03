@@ -9,7 +9,7 @@ const postSchema = Schema(
       type: String,
     },
     heading: { type: String },
-    imageUrl: [{ type: String }],
+    imageUrl: [],
     description: {
       type: String,
     },
@@ -25,7 +25,7 @@ const postSchema = Schema(
     markup: {
       type: String,
     },
-    country: { type: String },
+    country: { type: String, required: true },
   },
   { versionKey: false, timestamps: true }
 );

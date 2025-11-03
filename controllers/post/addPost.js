@@ -1,100 +1,107 @@
 const { Post } = require("../../models");
 const cloudinary = require("../../utils/cloudinary");
-const path = require("path");
 const fs = require("fs").promises;
 const cyrillicToTranslit = require("cyrillic-to-translit-js");
 const langdetect = require("langdetect");
 
 const addPost = async (req, res) => {
-  const { title, author, description, markup, heading, country } = req.body;
-
-  const domain = "https://www.thewandered.com/";
-  const language = langdetect.detectOne(`${heading}`);
-
-  let verifyTitle;
-  if (heading) {
-    verifyTitle = heading.replace(/[.,:'"?!\-]/g, "");
-  }
-
-  const translit = cyrillicToTranslit({ preset: language })
-    .transform(verifyTitle, "-")
-    .toLowerCase();
-  const articleUrl = `${domain}${country.toLowerCase()}/${translit}`;
-  const findPost = await Post.find({ articleUrl });
-
-  if (findPost.length > 0) {
-    return res
-      .status(409)
-      .json({
-        code: 409,
-        message: `article with url ${articleUrl} are exist in DB`,
-      })
-      .end();
-  }
-
   try {
-    const uploader = async (path) => await cloudinary.uploads(path, "Blog-YPB");
-    if (req.method === "POST") {
-      const urls = [];
-      const files = req.files;
-      for (const file of files) {
-        const { path } = file;
-        const newPath = await uploader(path);
-        urls.push(newPath);
-        await fs.unlink(path);
-      }
+    const {
+      title,
+      author,
+      description,
+      markup,
+      heading,
+      country,
+      alts,
+      captions,
+    } = req.body;
 
-      const publicationDate = new Date();
-      const changeDate = new Date();
-      const result = await Post.create({
-        title,
-        author,
-        description,
-        publicationDate,
-        markup,
-        changeDate,
-        imageUrl: urls,
-        articleUrl,
-        heading,
-        country: country.toLowerCase(),
+    const domain = "https://www.thewandered.com/";
+    const language = langdetect.detectOne(`${heading || "en"}`);
+
+    // --- Generate URL ---
+    const verifyTitle = heading?.replace(/[.,:'"?!\-]/g, "") || "post";
+    const translit = cyrillicToTranslit({ preset: language })
+      .transform(verifyTitle, "-")
+      .toLowerCase();
+
+    const articleUrl = country
+      ? `${domain}${country.toLowerCase()}/${translit}`
+      : `${domain}${translit}`;
+
+    const exists = await Post.exists({ articleUrl });
+    if (exists) {
+      return res.status(409).json({
+        code: 409,
+        message: `Article with URL ${articleUrl} already exists.`,
       });
-
-      if (!result) {
-        return res
-          .status(404)
-          .json({
-            code: 404,
-            message: "post don't created",
-          })
-          .end();
-      }
-      res
-        .status(201)
-        .json({
-          status: "success",
-          code: 201,
-          result,
-        })
-        .end();
-    } else {
-      return res
-        .status(405)
-        .json({
-          err: `${req.method} method not allowed`,
-        })
-        .end();
     }
-  } catch (error) {
-    return res
-      .status(404)
-      .json({
-        code: 404,
-        message: "post don't created",
-      })
-      .end();
-  }
 
-  res.end();
+    // --- Upload files in Cloudinary ---
+    const files = req.files || [];
+    if (!files.length) {
+      return res.status(400).json({
+        code: 400,
+        message: "No images uploaded.",
+      });
+    }
+    // Upload all photos in parallel
+    const uploads = await Promise.all(
+      files.map(async (file, index) => {
+        const context = {
+          alt: alts?.[index] || "No alt provided",
+          caption: captions?.[index] || "",
+          // description: photoDescriptions?.[index] || "",
+        };
+        // console.log("➡️ Uploading with context:", context);
+
+        const result = await cloudinary.uploads(file.path, "Blog-YPB", context);
+
+        // delete the file only if the download is successful
+        await fs.unlink(file.path).catch(() => {});
+
+        if (!result) {
+          console.warn(`⚠️ Upload failed for ${file.originalname}`);
+          return null;
+        }
+
+        return result;
+      })
+    );
+
+    // remove empty elements (if some upload didn't work)
+    const successfulUploads = uploads.filter((u) => u !== null);
+
+    // console.log("✅ Uploads completed:", successfulUploads);
+    // --- Save post ---
+    const now = new Date();
+    const newPost = await Post.create({
+      title,
+      author,
+      description,
+      markup,
+      heading,
+      country: country?.toLowerCase() || "home",
+      publicationDate: now,
+      changeDate: now,
+      articleUrl,
+      imageUrl: successfulUploads, // array with descriptions and url
+    });
+
+    return res.status(201).json({
+      code: 201,
+      status: "success",
+      data: newPost,
+    });
+  } catch (error) {
+    console.error("Error creating post:", error);
+    return res.status(500).json({
+      code: 500,
+      status: "error",
+      message: "Post creation failed",
+    });
+  }
 };
 
 module.exports = addPost;
