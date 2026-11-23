@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const countryApi = async (langCode) => {
-  const url = `http://ypbooking.chost.com.ua/api/countries?langCode=${langCode}`;
+  const url = `https://yourpricebooking.com/api/countries?langCode=${langCode}`;
 
   try {
     const response = await axios.get(url);

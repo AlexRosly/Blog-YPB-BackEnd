@@ -4,6 +4,7 @@ const getPostByArticleUrl = require("./getPostByArticleUrl");
 const updatePost = require("./updatePost");
 const getPostById = require("./getPostById");
 const autoComplete = require("./autoComplete");
+const updateDb = require("./updateDb");
 
 module.exports = {
   getAllPosts,
@@ -12,4 +13,5 @@ module.exports = {
   updatePost,
   getPostById,
   autoComplete,
+  updateDb,
 };

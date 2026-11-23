@@ -20,6 +20,11 @@ const getCountry = async (req, res) => {
         langCode,
       })
     );
+    filtered.push({
+      international: "uncharted-planet",
+      country: "uncharted-planet",
+      langCode: "EN",
+    });
 
     res.status(200).json({
       code: 200,

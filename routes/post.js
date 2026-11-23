@@ -20,4 +20,6 @@ router.post("/add-post", upload.array("image"), ctrlWrapper(ctrl.addPost));
 
 router.patch("/update-post/:id", ctrlWrapper(ctrl.updatePost));
 
+router.get("/update-db", ctrlWrapper(ctrl.updateDb));
+
 module.exports = router;

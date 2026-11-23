@@ -30,9 +30,11 @@ app.use(
       "https://admin2-alpha.vercel.app",
       "http://localhost:3000",
       "https://www.thewandered.com",
+      "https://ypbooking.chost.com.ua",
+      "https://thewandered.com",
     ],
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 
@@ -59,9 +61,9 @@ mongoose
   .then(() =>
     app.listen(APP_PORT, () => {
       console.log(
-        `server is running in port ${APP_PORT} and Database connection successful`
+        `server is running in port ${APP_PORT} and Database connection successful`,
       );
-    })
+    }),
   )
   .catch((error) => {
     console.log(error.message);

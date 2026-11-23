@@ -9,7 +9,16 @@ const postSchema = Schema(
       type: String,
     },
     heading: { type: String },
-    imageUrl: [],
+    imageUrl: [
+      {
+        url: String,
+        id: String,
+        context: {
+          alt: String,
+          caption: String,
+        },
+      },
+    ],
     description: {
       type: String,
     },
