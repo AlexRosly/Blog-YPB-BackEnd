@@ -56,8 +56,8 @@ app.use((err, req, res, next) => {
 mongoose.set("strictQuery", false);
 
 mongoose
-  .connect(DB_HOST)
-  //.connect(DB_SERVER)
+  //.connect(DB_HOST)
+  .connect(DB_SERVER)
   .then(() =>
     app.listen(APP_PORT, () => {
       console.log(
