@@ -3,6 +3,12 @@ const { post: ctrl } = require("../controllers");
 const { ctrlWrapper, upload } = require("../middelwares");
 const router = express.Router();
 
+// Tell the admin editor whether this instance understands the optional slug.
+router.get("/capabilities", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  return res.json({ customArticleSlug: true });
+});
+
 //get all post
 router.get("/get-all", ctrlWrapper(ctrl.getAllPosts));
 

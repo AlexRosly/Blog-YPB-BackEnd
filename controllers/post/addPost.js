@@ -3,8 +3,14 @@ const cloudinary = require("../../utils/cloudinary");
 const fs = require("fs").promises;
 const cyrillicToTranslit = require("cyrillic-to-translit-js");
 const langdetect = require("langdetect");
+const { customArticleUrl } = require("../../utils/customArticleSlug");
+
+// Prevent overlapping creates of the same URL within this API process.
+const pendingArticleUrls = new Set();
 
 const addPost = async (req, res) => {
+  const files = req.files || [];
+  let reservedUrl;
   try {
     const {
       title,
@@ -15,20 +21,35 @@ const addPost = async (req, res) => {
       country,
       alts,
       captions,
+      slug,
     } = req.body;
 
-    const domain = "https://www.thewandered.com/";
-    const language = langdetect.detectOne(`${heading || "en"}`);
+    const custom = customArticleUrl(slug, country);
+    if (custom.error) {
+      return res.status(custom.error).json({ code: custom.error, message: custom.message });
+    }
 
-    // --- Generate URL ---
-    const verifyTitle = heading?.replace(/[.,:'"?!\-]/g, "") || "post";
-    const translit = cyrillicToTranslit({ preset: language })
-      .transform(verifyTitle, "-")
-      .toLowerCase();
+    let articleUrl = custom.url;
+    if (!articleUrl) {
+      const domain = "https://www.thewandered.com/";
+      const language = langdetect.detectOne(`${heading || "en"}`);
+      const verifyTitle = heading?.replace(/[.,:'"?!\-]/g, "") || "post";
+      const translit = cyrillicToTranslit({ preset: language })
+        .transform(verifyTitle, "-")
+        .toLowerCase();
+      articleUrl = country
+        ? `${domain}${country.toLowerCase()}/${translit}`
+        : `${domain}${translit}`;
+    }
 
-    const articleUrl = country
-      ? `${domain}${country.toLowerCase()}/${translit}`
-      : `${domain}${translit}`;
+    if (pendingArticleUrls.has(articleUrl)) {
+      return res.status(409).json({
+        code: 409,
+        message: `Article with URL ${articleUrl} is already being created.`,
+      });
+    }
+    pendingArticleUrls.add(articleUrl);
+    reservedUrl = articleUrl;
 
     const exists = await Post.exists({ articleUrl });
     if (exists) {
@@ -39,7 +60,6 @@ const addPost = async (req, res) => {
     }
 
     // --- Upload files in Cloudinary ---
-    const files = req.files || [];
     if (!files.length) {
       return res.status(400).json({
         code: 400,
@@ -57,9 +77,6 @@ const addPost = async (req, res) => {
         // console.log("➡️ Uploading with context:", context);
 
         const result = await cloudinary.uploads(file.path, "Blog-YPB", context);
-
-        // delete the file only if the download is successful
-        await fs.unlink(file.path).catch(() => {});
 
         if (!result) {
           console.warn(`⚠️ Upload failed for ${file.originalname}`);
@@ -101,6 +118,9 @@ const addPost = async (req, res) => {
       status: "error",
       message: "Post creation failed",
     });
+  } finally {
+    if (reservedUrl) pendingArticleUrls.delete(reservedUrl);
+    await Promise.all(files.map((file) => fs.unlink(file.path).catch(() => {})));
   }
 };
 
