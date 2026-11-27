@@ -66,12 +66,15 @@ const addPost = async (req, res) => {
         message: "No images uploaded.",
       });
     }
+    const asList = (value) => Array.isArray(value) ? value : typeof value === "string" ? [value] : [];
+    const imageAlts = asList(alts);
+    const imageCaptions = asList(captions);
     // Upload all photos in parallel
     const uploads = await Promise.all(
       files.map(async (file, index) => {
         const context = {
-          alt: alts?.[index] || "No alt provided",
-          caption: captions?.[index] || "",
+          alt: imageAlts[index] || "No alt provided",
+          caption: imageCaptions[index] || "",
           // description: photoDescriptions?.[index] || "",
         };
         // console.log("➡️ Uploading with context:", context);
@@ -83,7 +86,7 @@ const addPost = async (req, res) => {
           return null;
         }
 
-        return result;
+        return { ...result, context };
       })
     );
 

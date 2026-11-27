@@ -1,12 +1,15 @@
 const express = require("express");
 const { post: ctrl } = require("../controllers");
 const { ctrlWrapper, upload } = require("../middelwares");
+const updatePostMedia = require("../controllers/post/updatePostMedia");
+const { enabled, requireMediaAdmin } = require("../utils/existingArticleMedia");
+const uploadArticleMedia = require("../middelwares/uploadArticleMedia");
 const router = express.Router();
 
 // Tell the admin editor whether this instance understands the optional slug.
 router.get("/capabilities", (_req, res) => {
   res.set("Cache-Control", "no-store");
-  return res.json({ customArticleSlug: true });
+  return res.json({ customArticleSlug: true, ...(enabled() ? { existingArticleMedia: true } : {}) });
 });
 
 //get all post
@@ -25,6 +28,8 @@ router.get("/search-query", ctrlWrapper(ctrl.autoComplete));
 router.post("/add-post", upload.array("image"), ctrlWrapper(ctrl.addPost));
 
 router.patch("/update-post/:id", ctrlWrapper(ctrl.updatePost));
+
+router.patch("/update-post-media/:id", requireMediaAdmin, uploadArticleMedia, ctrlWrapper(updatePostMedia));
 
 router.get("/update-db", ctrlWrapper(ctrl.updateDb));
 

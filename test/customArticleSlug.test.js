@@ -47,6 +47,9 @@ function fixture({ duplicate = false, exists, create } = {}) {
   load("routes/post.js", {
     express: { Router: () => router },
     "../controllers": { post: { addPost } },
+    "../controllers/post/updatePostMedia": () => {},
+    "../utils/existingArticleMedia": { enabled: () => false, requireMediaAdmin: () => {}, MAX_UPLOADS: 12 },
+    "../middelwares/uploadArticleMedia": () => {},
     "../middelwares": {
       ctrlWrapper: load("middelwares/ctrlWrapper.js", {}),
       upload: { array: (field) => field },
@@ -186,4 +189,14 @@ test("failure releases the in-process guard and cleans temp uploads", async () =
   assert.deepEqual(f.calls.unlink, ["synthetic.jpg"]);
   fail = false;
   assert.equal((await f.invoke(input)).code, 201);
+});
+
+test("one cover retains complete alt and caption from scalar multipart inputs", async () => {
+  const f = fixture();
+  const alt = "Downtown Montréal skyline";
+  const caption = "Downtown Montréal from Mount Royal.";
+  const r = await f.invoke({ alts: alt, captions: caption });
+  assert.equal(r.code, 201);
+  assert.deepEqual(f.calls.upload[0][2], { alt, caption });
+  assert.deepEqual(r.body.data.imageUrl[0].context, { alt, caption });
 });

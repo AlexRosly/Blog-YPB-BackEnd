@@ -43,3 +43,15 @@ exports.remove = async (id) => {
     return null;
   }
 };
+
+// Separate from the legacy upload path: never replace an existing public ID.
+exports.uploadArticleMedia = async (filePath) => {
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder: "Blog-YPB",
+    public_id: require("node:crypto").randomUUID(),
+    resource_type: "image",
+    overwrite: false,
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  });
+  return { url: result.secure_url, id: result.public_id };
+};
